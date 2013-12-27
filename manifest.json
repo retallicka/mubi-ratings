@@ -1,0 +1,15 @@
+{
+  "manifest_version": 2,
+
+  "name": "Mubi Ratings",
+  "description": "This extension overlays rotten tomato ratings on top of Mubi",
+  "version": "1.0",
+
+  "permissions": [
+    "http://api.rottentomatoes.com/"
+  ],
+  "browser_action": {
+    "default_icon": "assets/icon2.png",
+    "default_popup": "mubiratings.html"
+  }
+}
