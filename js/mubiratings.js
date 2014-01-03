@@ -1,50 +1,61 @@
 // Mubi Ratings Chrome Extension. Developed by Vickie Retallick 2013
 
-var rottenTomatoAPI = {
-  makeAPICall: function (url) {
-    // only JSONp is available at RottenTomatoes API
-    var head = document.head;
-    var script = document.createElement("script");
-    script.setAttribute('src', url);
-    head.appendChild(script);
-    head.removeChild(script);
+// Talking to rottentomatoes.com API
+
+var mubiRating = {
+  makeAPICall: function (url, func) {
+    console.log("make call");
+    $.getJSON(url, function (data) {
+      func(data);
+    });
   },
 
   requestAPI: function () {
-    this.makeAPICall('http://api.rottentomatoes.com/api/public/v1.0.json' +
+    mubiRating.makeAPICall('http://api.rottentomatoes.com/api/public/v1.0.json' +
       '?apikey=qurnwj6rx3cg5ggb63mju2ku' +
-      '&format=jsonp' +
-      '&callback=rottenTomatoAPI.apiAvailable');
+      '&format=json', mubiRating.apiAvailable);
   },
 
-  apiAvailable: function (json) {
-    console.log("API is available :)");
-    //this.listsAPI = json.links.lists;
-    this.moviesAPI = json.links.movies;
-    this.getFilm("Millions");
+  apiAvailable: function (data) {
+    mubiRating.moviesAPI = data.links.movies;
+    mubiRating.findFilmInPage();
+  },
+
+  findFilmInPage: function () {
+    var name = $("meta[property='og:title']").attr("content");
+    mubiRating.getFilm(name);
   },
 
   getFilm: function (filmname) {
     console.log("OK...preparing to search for " + filmname);
-    this.makeAPICall(this.moviesAPI +
+    mubiRating.makeAPICall(this.moviesAPI +
       '?apikey=qurnwj6rx3cg5ggb63mju2ku' +
-      '&format=jsonp' +
+      '&format=json' +
       '&q=' + encodeURIComponent(filmname) +
       '&page_limit=1' +
-      '&page=1' +
-      '&callback=rottenTomatoAPI.filmFound');
+      '&page=1', mubiRating.filmFound);
   },
 
   filmFound: function (json) {
-    console.log("We found some data");
-    //console.dir(json);
     var rating = json.movies[0].ratings.critics_score;
     console.log("This film is rated " + rating);
+    mubiRating.setHTML(rating);
+  },
+
+  // Mubi Overlay
+
+  injectCSS: function () {
+    var url = chrome.extension.getURL('../css/styles.css');
+    $("head").append("<link id='mubirating' href='" + url + "' type='text/css' rel='stylesheet' />");
+  },
+
+  setHTML: function (score) {
+    $("body").append('<div id="mubi-rating"><p>' + score + '</p></div>');
   }
 };
 
-document.addEventListener('DOMContentLoaded', function () {
+$(document).ready(function () {
   console.log("requesting API~!");
-  rottenTomatoAPI.requestAPI();
-  alert('<html>' + document.documentElement.outerHTML + '</html>');
+  mubiRating.requestAPI();
+  mubiRating.injectCSS();
 });
