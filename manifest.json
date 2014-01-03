@@ -3,13 +3,38 @@
 
   "name": "Mubi Ratings",
   "description": "This extension overlays rotten tomato ratings on top of Mubi",
-  "version": "1.0",
+  "version": "0.1",
 
   "permissions": [
-    "http://api.rottentomatoes.com/"
+    "http://api.rottentomatoes.com/",
+    "http://*.mubi.com/",
+    "http://uk.mubi.com/",
+    "https://uk.mubi.com/",
+    "tabs"
   ],
-  "browser_action": {
+
+  "page_action": {
     "default_icon": "assets/icon2.png",
+    "default_title": "Mubi Ratings",
     "default_popup": "mubiratings.html"
-  }
+  },
+
+  "content_scripts": [
+    {
+      "matches": ["http://*.mubi.com/*"],
+      "js": ["js/jquery.js"]
+    }
+  ],
+
+  "background": {
+    "scripts": ["js/bootstrap.js"],
+    "persistent": true
+  },
+
+  "web_accessible_resources": [
+    "js/jquery-1.10.2.min.map",
+    "css/styles.css"
+  ],
+
+  "author": "Vickie Retallick"
 }
