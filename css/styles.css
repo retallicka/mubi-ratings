@@ -6,10 +6,12 @@
   width: 100px;
   top: 90px;
   left: 30px;
-  background-color: red;
+  background-color: rgba(255,0,0,0.5);
+  opacity:0;
 }
 
-#mubi-rating
+#mubi-rating p
 {
-  font-size: 20px;
+  font-size: 30px;
+  text-align: center;
 }

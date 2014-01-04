@@ -23,12 +23,8 @@ chrome.tabs.onUpdated.addListener(function (id, info, tab) {
 
     console.log("ratings or not?" + tab.url.toLowerCase().indexOf("mubi.com"));
 
-    if (tab.url.toLowerCase().indexOf("mubi.com") !== -1) {
-      //chrome.tabs.update(tab.id, {url: "http://www.mubi.com/?no-ratings-for-you!"});
-    }
-
     // show the page action
-    chrome.pageAction.show(tab.id);
+    //chrome.pageAction.show(tab.id);
 
     // inject the content script onto the page
     chrome.tabs.executeScript(null, {"file": "js/mubiratings.js"});

@@ -50,12 +50,29 @@ var mubiRating = {
   },
 
   setHTML: function (score) {
-    $("body").append('<div id="mubi-rating"><p>' + score + '</p></div>');
+    if ($('#mubi-rating').length === 0) {
+      $("body").append('<div id="mubi-rating"><p>' + score + '</p></div>');
+    } else {
+      $('#mubi-rating').html('<p>' + score + '</p>');
+    }
+    $("#mubi-rating").animate({opacity: 1}, 500);
+  },
+
+  clearPrevious: function (score) {
+    if ($('#mubi-rating').length > 0) {
+      $("#mubi-rating").animate({opacity: 0}, 200);
+    }
   }
 };
 
 $(document).ready(function () {
-  console.log("requesting API~!");
-  mubiRating.requestAPI();
-  mubiRating.injectCSS();
+  mubiRating.clearPrevious();
+  console.log("reloading~!");
+  if (mubiRating.moviesAPI) {
+    mubiRating.findFilmInPage();
+  } else {
+    mubiRating.requestAPI();
+  }
 });
+
+mubiRating.injectCSS();
