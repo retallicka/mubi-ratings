@@ -22,14 +22,9 @@
   "content_scripts": [
     {
       "matches": ["http://*.mubi.com/*"],
-      "js": ["js/jquery.js"]
+      "js": ["js/jquery.js", "js/mubiratings.js"]
     }
   ],
-
-  "background": {
-    "scripts": ["js/bootstrap.js"],
-    "persistent": true
-  },
 
   "web_accessible_resources": [
     "js/jquery-1.10.2.min.map",
