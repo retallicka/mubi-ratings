@@ -22,7 +22,10 @@ var mubiRating = {
   },
 
   findFilmInPage: function () {
-    var name = $("meta[property='og:title']").attr("content");
+    var holder = $('.film_slider').find('.film_showcase:visible');
+    console.debug(holder);
+    var name = holder.find('.film_title')[1].outerText;
+    console.debug(name);
     mubiRating.getFilm(name);
   },
 
@@ -37,9 +40,11 @@ var mubiRating = {
   },
 
   filmFound: function (json) {
-    var rating = json.movies[0].ratings.critics_score;
-    console.log("This film is rated " + rating);
-    mubiRating.setHTML(rating);
+    if (json.movies && json.movies[0]) {
+      var rating = json.movies[0].ratings.critics_score;
+      console.log("This film is rated " + rating);
+      mubiRating.setHTML(rating);
+    }
   },
 
   // Mubi Overlay
@@ -50,12 +55,31 @@ var mubiRating = {
   },
 
   setHTML: function (score) {
-    $("body").append('<div id="mubi-rating"><p>' + score + '</p></div>');
+    if ($('#mubi-rating').length === 0) {
+      $("body").append('<div id="mubi-rating"><p>' + score + '</p></div>');
+    } else {
+      $('#mubi-rating').html('<p>' + score + '</p>');
+    }
+    $("#mubi-rating").animate({opacity: 1}, 500);
+  },
+
+  clearPrevious: function (score) {
+    if ($('#mubi-rating').length > 0) {
+      $("#mubi-rating").animate({opacity: 0}, 200);
+    }
   }
 };
 
-$(document).ready(function () {
-  console.log("requesting API~!");
-  mubiRating.requestAPI();
-  mubiRating.injectCSS();
+$("#film_navigation").click(function () {
+  console.log("previous");
+  mubiRating.clearPrevious();
+  if (mubiRating.moviesAPI) {
+    mubiRating.findFilmInPage();
+  }
 });
+
+$(document).ready(function () {
+  mubiRating.requestAPI();
+});
+
+mubiRating.injectCSS();
