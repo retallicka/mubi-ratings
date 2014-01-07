@@ -23,9 +23,7 @@ var mubiRating = {
 
   findFilmInPage: function () {
     var holder = $('.film_slider').find('.film_showcase:visible');
-    console.debug(holder);
     var name = holder.find('.film_title')[1].outerText;
-    console.debug(name);
     mubiRating.getFilm(name);
   },
 
@@ -35,15 +33,22 @@ var mubiRating = {
       '?apikey=qurnwj6rx3cg5ggb63mju2ku' +
       '&format=json' +
       '&q=' + encodeURIComponent(filmname) +
-      '&page_limit=1' +
+      '&page_limit=10' +
       '&page=1', mubiRating.filmFound);
   },
 
   filmFound: function (json) {
     if (json.movies && json.movies[0]) {
       var rating = json.movies[0].ratings.critics_score;
+      console.log("The top film is " + json.movies[0].title);
+      console.log("Its year is " + json.movies[0].year);
       console.log("This film is rated " + rating);
-      mubiRating.setHTML(rating);
+
+      if (rating === -1) {
+        console.log("this film is unrated");
+      } else {
+        mubiRating.setHTML(rating);
+      }
     }
   },
 
