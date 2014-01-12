@@ -2,8 +2,8 @@
   "manifest_version": 2,
 
   "name": "Mubi Ratings",
-  "description": "This extension overlays rotten tomato ratings on top of Mubi",
-  "version": "0.1",
+  "description": "Shows Rotten Tomato ratings when browsing Mubi",
+  "version": "0.9",
 
   "permissions": [
     "http://api.rottentomatoes.com/",
@@ -28,8 +28,15 @@
 
   "web_accessible_resources": [
     "js/jquery-1.10.2.min.map",
-    "css/styles.css"
+    "css/styles.css",
+    "assets/smalltomato.png"
   ],
+
+  "icons": {
+      "16": "assets/16.png",
+      "48": "assets/48.png",
+      "128": "assets/128.png"
+    },
 
   "author": "Vickie Retallick"
 }

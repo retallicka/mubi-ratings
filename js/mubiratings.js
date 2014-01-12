@@ -1,7 +1,5 @@
 // Mubi Ratings Chrome Extension. Developed by Vickie Retallick 2013
 
-// Talking to rottentomatoes.com API
-
 var mubiRating = {
   makeAPICall: function (url, func) {
     $.getJSON(url, function (data) {
@@ -29,14 +27,11 @@ var mubiRating = {
   },
 
   getNameFromPage: function (useSecondary) {
-    var name;
-    var holder = $('.film_slider').find('.film_showcase:visible');
-    var prev_nav = $('#prev_film');
-    var next_nav = $('#next_film');
+    var holder = mubiRating.getVisibleFilmShowcase();
+    var index = mubiRating.findDisplayedFilmIndex();
+    var name = holder.find('.film_title')[index].outerText;
+    if (name == undefined) return;
 
-    var index = mubiRating.findDisplayedFilmIndex(prev_nav, next_nav);
-
-    name = holder.find('.film_title')[index].outerText;
     if (useSecondary == true) {
       name += " " + holder.find('.film-title-secondary')[index].outerText;
     }
@@ -52,7 +47,14 @@ var mubiRating = {
     mubiRating.year = year_and_country.match(pattern);
   },
 
-  findDisplayedFilmIndex: function (prev_nav, next_nav) {
+  getVisibleFilmShowcase: function () {
+    return $('.film_slider').find('.film_showcase:visible');
+  },
+
+  findDisplayedFilmIndex: function () {
+    var prev_nav = $('#prev_film');
+    var next_nav = $('#next_film');
+
     if ((prev_nav.length > 0 && next_nav.length > 0) || next_nav.length > 0) {
       return 1;
     }
@@ -60,7 +62,7 @@ var mubiRating = {
   },
 
   getFilm: function (filmname) {
-    console.log("OK...preparing to search for " + filmname);
+    // console.log("OK...preparing to search for " + filmname);
     mubiRating.makeAPICall(this.moviesAPI +
       '?apikey=qurnwj6rx3cg5ggb63mju2ku' +
       '&format=json' +
@@ -71,7 +73,6 @@ var mubiRating = {
 
   filmFound: function (json) {
     if (json.movies.length === 0 && mubiRating.searchComplete === false) {
-      console.log("No movies returned");
       mubiRating.searchAgainWithoutSecondary();
       mubiRating.searchComplete = true;
     }
@@ -81,17 +82,17 @@ var mubiRating = {
 
     for (i = 0; i < json.movies.length; i++) {
       var rating = json.movies[i].ratings.critics_score;
-      console.log("Looking at " + json.movies[i].title);
+      // console.log("Looking at " + json.movies[i].title);
 
       if (mubiRating.year == json.movies[i].year) {
         match = i;
-        console.log("The year matches :)");
+        // console.log("The year matches :)");
         break;
       } else {
         if (closeMatch == undefined) {
           closeMatch = i;
         }
-        console.log("Year mismatch! our movie's year is meant to be " + mubiRating.year + " but we found " + json.movies[i].year);
+        // console.log("Year mismatch! our movie's year is meant to be " + mubiRating.year + " but we found " + json.movies[i].year);
       }
     }
     if (match != undefined) {
@@ -104,8 +105,6 @@ var mubiRating = {
   searchAgainWithoutSecondary: function () {
     mubiRating.findFilmInPage(false);
   },
-
-  // Mubi Overlay
 
   injectCSS: function () {
     var url = chrome.extension.getURL('../css/styles.css');
@@ -121,11 +120,15 @@ var mubiRating = {
   },
 
   setHTML: function (score) {
-    if ($('#mubi-rating').length === 0) {
-      $("body").append('<div id="mubi-rating"><p>' + score + '</p></div>');
-    } else {
-      $('#mubi-rating').html('<p>' + score + '</p>');
+
+    var index = mubiRating.findDisplayedFilmIndex();
+    var current = mubiRating.getVisibleFilmShowcase();
+    var div = current.find(".row.social_buttons");
+
+    if ($('#mubi-rating').length !== 0) {
+      $('#mubi-rating').remove();
     }
+    div.eq(index).append('<div id="mubi-rating"><p>' + score + '</p></div>');
     $("#mubi-rating").animate({opacity: 1}, 500);
   },
 
@@ -133,18 +136,29 @@ var mubiRating = {
     if ($('#mubi-rating').length > 0) {
       $("#mubi-rating").animate({opacity: 0}, 200);
     }
+  },
+
+  clickNavigation: function () {
+    console.log("click nav");
+    mubiRating.clearPrevious();
+    if (mubiRating.moviesAPI) {
+      mubiRating.searchComplete = false;
+      mubiRating.findFilmInPage(true);
+    }
   }
 };
 
 $("#film_navigation").click(function () {
-  mubiRating.clearPrevious();
-  if (mubiRating.moviesAPI) {
-    mubiRating.searchComplete = false;
-    mubiRating.findFilmInPage(true);
-  }
+  mubiRating.clickNavigation();
 });
 
+// $("a.film_still_link").click(function () {
+//   setTimeout(mubiRating.clickNavigation(), 1000);
+// });
+
 $(document).ready(function () {
+  console.log("ready");
+  mubiRating.searchComplete = false;
   mubiRating.requestAPI();
 });
 
