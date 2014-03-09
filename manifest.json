@@ -3,11 +3,12 @@
 
   "name": "Mubi Ratings",
   "description": "Shows Rotten Tomato ratings when browsing Mubi",
-  "version": "0.9",
+  "version": "1.0",
 
   "permissions": [
     "http://api.rottentomatoes.com/",
     "http://*.mubi.com/",
+    "https://*.mubi.com/",
     "http://uk.mubi.com/",
     "https://uk.mubi.com/",
     "tabs"
@@ -21,8 +22,9 @@
 
   "content_scripts": [
     {
-      "matches": ["http://*.mubi.com/*"],
-      "js": ["js/jquery.js", "js/mubiratings.js"]
+      "matches": ["https://*.mubi.com/*"],
+      "js": ["js/jquery.js", "js/mubiratings.js"],
+      "css": ["css/styles.css"]
     }
   ],
 

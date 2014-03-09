@@ -1,5 +1,7 @@
 // Mubi Ratings Chrome Extension. Developed by Vickie Retallick 2013
 
+console.log("starting")
+
 var mubiRating = {
   makeAPICall: function (url, func) {
     $.getJSON(url, function (data) {
@@ -27,13 +29,12 @@ var mubiRating = {
   },
 
   getNameFromPage: function (useSecondary) {
-    var holder = mubiRating.getVisibleFilmShowcase();
-    var index = mubiRating.findDisplayedFilmIndex();
-    var name = holder.find('.film_title')[index].outerText;
+    var name = $.('h1.film-title')[0].outerText;
+    console.debug(name)
     if (name == undefined) return;
 
     if (useSecondary == true) {
-      name += " " + holder.find('.film-title-secondary')[index].outerText;
+      name += " " + $.('.film-alternative-title')[0].outerText;
     }
 
     mubiRating.setYear(holder, index);
