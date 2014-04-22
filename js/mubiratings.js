@@ -29,32 +29,29 @@ var mubiRating = {
   },
 
   getNameFromPage: function (useSecondary) {
-    var name = $.('h1.film-title')[0].outerText;
-    console.debug(name)
+    var name = $('h1.film-title')[0].outerText;
+    
     if (name == undefined) return;
+    console.log("Name is",name)
+    console.log($('h2.film-alternative-title'));
 
-    if (useSecondary == true) {
-      name += " " + $.('.film-alternative-title')[0].outerText;
+    if (useSecondary == true && $('h2.film-alternative-title').length > 0) {
+      name += " " + $('h2.film-alternative-title')[0].outerText;
+      console.log("Alt name is",$('h2.film-alternative-title')[0].outerText);
     }
 
-    mubiRating.setYear(holder, index);
-
+    mubiRating.setYear();
     return name;
   },
 
-  setYear: function (holder, index) {
-    var year_and_country = holder.find('.film_country_year')[index].outerText;
-    var pattern = /[0-9]+/;
-    mubiRating.year = year_and_country.match(pattern);
-  },
-
-  getVisibleFilmShowcase: function () {
-    return $('.film_slider').find('.film_showcase:visible');
+  setYear: function () {
+    mubiRating.year = year = $('span.year')[0].outerText;
+    console.log("Year is ",mubiRating.year)
   },
 
   findDisplayedFilmIndex: function () {
-    var prev_nav = $('#prev_film');
-    var next_nav = $('#next_film');
+    var prev_nav = $('.prev_film');
+    var next_nav = $('.next_film');
 
     if ((prev_nav.length > 0 && next_nav.length > 0) || next_nav.length > 0) {
       return 1;
@@ -63,7 +60,7 @@ var mubiRating = {
   },
 
   getFilm: function (filmname) {
-    // console.log("OK...preparing to search for " + filmname);
+    console.log("OK...preparing to search for " + filmname);
     mubiRating.makeAPICall(this.moviesAPI +
       '?apikey=qurnwj6rx3cg5ggb63mju2ku' +
       '&format=json' +
@@ -83,17 +80,17 @@ var mubiRating = {
 
     for (i = 0; i < json.movies.length; i++) {
       var rating = json.movies[i].ratings.critics_score;
-      // console.log("Looking at " + json.movies[i].title);
+      console.log("Looking at " + json.movies[i].title);
 
       if (mubiRating.year == json.movies[i].year) {
         match = i;
-        // console.log("The year matches :)");
+        console.log("The year matches :)");
         break;
       } else {
         if (closeMatch == undefined) {
           closeMatch = i;
         }
-        // console.log("Year mismatch! our movie's year is meant to be " + mubiRating.year + " but we found " + json.movies[i].year);
+        console.log("Year mismatch! our movie's year is meant to be " + mubiRating.year + " but we found " + json.movies[i].year);
       }
     }
     if (match != undefined) {
@@ -116,21 +113,19 @@ var mubiRating = {
     if (rating === -1) {
       console.log("this film is unrated");
     } else {
+      console.log("the rating will be",rating);
       mubiRating.setHTML(rating);
     }
   },
 
   setHTML: function (score) {
-
-    var index = mubiRating.findDisplayedFilmIndex();
-    var current = mubiRating.getVisibleFilmShowcase();
-    var div = current.find(".row.social_buttons");
+    var div = $('.available-on')
 
     if ($('#mubi-rating').length !== 0) {
       $('#mubi-rating').remove();
     }
-    div.eq(index).append('<div id="mubi-rating"><p>' + score + '</p></div>');
-    $("#mubi-rating").animate({opacity: 1}, 500);
+    div.append('<div id="mubi-rating"><p>' + score + '</p></div>');
+    $("#mubi-rating").animate({opacity: 0.9}, 500);
   },
 
   clearPrevious: function (score) {
