@@ -94,9 +94,9 @@ var mubiRating = {
       }
     }
     if (match != undefined) {
-      mubiRating.setRating(json.movies[match].ratings.critics_score);
+      mubiRating.setRating(json.movies[match].ratings.critics_score, json.movies[match].links.alternate);
     } else if (closeMatch != undefined) {
-      mubiRating.setRating(json.movies[closeMatch].ratings.critics_score);
+      mubiRating.setRating(json.movies[closeMatch].ratings.critics_score, json.movies[closeMatch].links.alternate);
     }
   },
 
@@ -109,22 +109,22 @@ var mubiRating = {
     $("head").append("<link id='mubirating' href='" + url + "' type='text/css' rel='stylesheet' />");
   },
 
-  setRating: function (rating) {
+  setRating: function (rating, link) {
     if (rating === -1) {
       console.log("this film is unrated");
     } else {
       console.log("the rating will be",rating);
-      mubiRating.setHTML(rating);
+      mubiRating.setHTML(rating, link);
     }
   },
 
-  setHTML: function (score) {
+  setHTML: function (rating, link) {
     var div = $('.available-on')
 
     if ($('#mubi-rating').length !== 0) {
       $('#mubi-rating').remove();
     }
-    div.append('<div id="mubi-rating"><p>' + score + '</p></div>');
+    div.append('<div id="mubi-rating"><a href="' + link + '" target="_blank"><span></span></a><p>' + rating + '</p></div>');
     $("#mubi-rating").animate({opacity: 0.9}, 500);
   },
 

@@ -3,7 +3,7 @@
 
   "name": "Mubi Ratings",
   "description": "Shows Rotten Tomato ratings when browsing Mubi",
-  "version": "1.0",
+  "version": "1.2",
 
   "permissions": [
     "http://api.rottentomatoes.com/",
