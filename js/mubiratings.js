@@ -38,15 +38,13 @@ var mubiRating = {
   },
 
   getNameFromPage: function (useSecondary) {
-    var name = $('h1.film-title')[0].outerText;
-    
+    var name = $('h1.-title')[0].outerText;
+    // console.log("Name is",name);
     if (name == undefined) return;
-    // console.log("Name is",name)
-    // console.log($('h2.film-alternative-title'));
 
-    if (useSecondary == true && $('h2.film-alternative-title').length > 0) {
-      name += " " + $('h2.film-alternative-title')[0].outerText;
-      // console.log("Alt name is",$('h2.film-alternative-title')[0].outerText);
+    if (useSecondary == true && $('h2.-title-alt').length > 0) {
+      name += " " + $('h2.-title-alt')[0].outerText;
+      // console.log("Alt name is",$('h2.-title-alt')[0].outerText);
     }
 
     mubiRating.setYear();
@@ -54,8 +52,9 @@ var mubiRating = {
   },
 
   setYear: function () {
-    mubiRating.year = year = $('span.year')[0].outerText;
-    // console.log("Year is ",mubiRating.year)
+    var numberPattern = /\d+/g;
+    mubiRating.year = year = $('div.film-show--country-year')[0].outerText.match(numberPattern)[0];
+    // console.log("Year is ",mubiRating.year);
   },
 
   findDisplayedFilmIndex: function () {
@@ -128,7 +127,7 @@ var mubiRating = {
   },
 
   setHTML: function (rating, link) {
-    var div = $('.available-on')
+    var div = $('.film-show--average-rating')
 
     if ($('#mubi-rating').length !== 0) {
       $('#mubi-rating').remove();

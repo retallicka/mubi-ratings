@@ -1,13 +1,17 @@
 @charset "UTF-8";
 
+.film-show--average-rating {
+  height: 69px;
+}
+
 #mubi-rating
 {
   position: relative;
   height: 20px;
-  width: 70px;
-  top: 15px;
+  width: 50px;
+  top: 5px;
   left: 0px;
-  background-color: rgba(255, 0, 0, 1);
+  /*background-color: rgba(255, 255, 255, 1);*/
   opacity:0;
 
   background-image: url("../assets/smalltomato.png");
@@ -24,8 +28,8 @@
   text-align: center;
   vertical-align: middle;
   line-height: 20px;
-  color: #FFFFFF;
-  text-shadow: 0 -1px 0 #8C3535;
+  color: rgba(255, 255, 255, 1);
+  text-shadow: 0 0 5px #333333;
   font-weight: bold;
   font-family: 'Helvetica Neue', Helvetica, Arial, 'lucida grande',tahoma,verdana,arial,sans-serif;
 }
