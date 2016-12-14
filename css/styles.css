@@ -1,17 +1,28 @@
 @charset "UTF-8";
 
+body {
+  min-width: 357px;
+  overflow-x: hidden;
+}
+
+img {
+  margin: 5px;
+  border: 2px solid black;
+  vertical-align: middle;
+  width: 75px;
+  height: 75px;
+}
+
 .film-show--average-rating {
   height: 69px;
 }
 
-#mubi-rating
-{
+#mubi-rating {
   position: relative;
   height: 20px;
-  width: 50px;
+  width: 150px;
   top: 5px;
   left: 0px;
-  /*background-color: rgba(255, 255, 255, 1);*/
   opacity:0;
 
   background-image: url("../assets/smalltomato.png");
@@ -19,13 +30,11 @@
   background-position: 7% 30%;
 }
 
-#mubi-rating p
-{
+#mubi-rating p {
   position: absolute;
-  width:100%;
-  text-indent:12px;
-  font-size: 12px;
-  text-align: center;
+  width: 100%;
+  text-indent: 30px;
+  font-size: 100%;
   vertical-align: middle;
   line-height: 20px;
   color: rgba(255, 255, 255, 1);
@@ -34,12 +43,13 @@
   font-family: 'Helvetica Neue', Helvetica, Arial, 'lucida grande',tahoma,verdana,arial,sans-serif;
 }
 
-#mubi-rating span
-{ 
-  position:absolute; 
+
+#mubi-rating span {
+  position:absolute;
   width:100%;
   height:100%;
   top:0;
   left: 0;
   z-index: 1;
 }
+

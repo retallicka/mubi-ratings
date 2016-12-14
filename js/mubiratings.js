@@ -1,36 +1,29 @@
-// Mubi Ratings Chrome Extension. Developed by Victoria Retallick 2013-2015
+// Mubi Ratings Chrome Extension. Developed by Victoria Retallick 2013-2016
 
 // console.log("starting")
 
 var mubiRating = {
+
   makeAPICall: function (url, func) {
+    // console.log('making api call to',url);
     chrome.runtime.sendMessage({
       method: 'GET',
       action: 'xhttp',
       url: url
-    }, function(responseText) {
-      // console.log(responseText);
-        func($.parseJSON(responseText));
+    }, function(response) {
+      // console.log('data is',response);
+      func($.parseJSON(response));
     });
   },
 
-  requestAPI: function () {
-    mubiRating.makeAPICall('http://api.rottentomatoes.com/api/public/v1.0.json' +
-      '?apikey=qurnwj6rx3cg5ggb63mju2ku' +
-      '&format=json', mubiRating.apiAvailable);
-  },
-
-
-
-
-  apiAvailable: function (data) {
-    // console.log('data is',data);
-    mubiRating.moviesAPI = data["links"].movies;
-    mubiRating.findFilmInPage(true);
+  cleanName: function(name) {
+    var punctuationless = name.replace(/[.\/#!$%\^&\*;:{}=\-_`~()]/g,"");
+    return punctuationless.replace(/\s{2,}/g," ");
   },
 
   findFilmInPage: function (useSecondary) {
     var name = mubiRating.getNameFromPage(useSecondary);
+    name = mubiRating.cleanName(name);
 
     if (name) {
       mubiRating.getFilm(name);
@@ -38,13 +31,15 @@ var mubiRating = {
   },
 
   getNameFromPage: function (useSecondary) {
-    var name = $('h1.-title')[0].outerText;
+    var name = $('h1.film-show__titles__title')[0].outerText;
     // console.log("Name is",name);
     if (name == undefined) return;
 
-    if (useSecondary == true && $('h2.-title-alt').length > 0) {
-      name += " " + $('h2.-title-alt')[0].outerText;
-      // console.log("Alt name is",$('h2.-title-alt')[0].outerText);
+    var secondary = $('h2.film-show__titles__title-alt');
+
+    if (useSecondary == true && secondary.length > 0) {
+      name = secondary[0].outerText;
+      // console.log("Alt name is",name);
     }
 
     mubiRating.setYear();
@@ -53,62 +48,32 @@ var mubiRating = {
 
   setYear: function () {
     var numberPattern = /\d+/g;
-    mubiRating.year = year = $('div.film-show--country-year')[0].outerText.match(numberPattern)[0];
+    mubiRating.year = year = $('div.film-show__country-year')[0].outerText.match(numberPattern)[0];
     // console.log("Year is ",mubiRating.year);
-  },
-
-  findDisplayedFilmIndex: function () {
-    var prev_nav = $('.prev_film');
-    var next_nav = $('.next_film');
-
-    if ((prev_nav.length > 0 && next_nav.length > 0) || next_nav.length > 0) {
-      return 1;
-    }
-    return 0;
   },
 
   getFilm: function (filmname) {
     // console.log("OK...preparing to search for " + filmname);
-    mubiRating.makeAPICall(this.moviesAPI +
-      '?apikey=qurnwj6rx3cg5ggb63mju2ku' +
-      '&format=json' +
-      '&q=' + encodeURIComponent(filmname) +
-      '&page_limit=10' +
-      '&page=1', mubiRating.filmFound);
+    mubiRating.makeAPICall(mubiRating.moviesAPI +
+      '?r=json' +
+      '&type=movie' +
+      '&tomatoes=' + true +
+      '&t=' + encodeURIComponent(filmname), mubiRating.filmFound)
   },
 
   filmFound: function (json) {
-    if (json.movies.length === 0 && mubiRating.searchComplete === false) {
-      mubiRating.searchAgainWithoutSecondary();
+    // console.log('film found',json);
+    if (json.Response === 'False' && mubiRating.searchComplete === false) {
+      mubiRating.searchAgain();
       mubiRating.searchComplete = true;
-    }
-
-    var closeMatch;
-    var match;
-
-    for (i = 0; i < json.movies.length; i++) {
-      var rating = json.movies[i].ratings.critics_score;
-      // console.log("Looking at " + json.movies[i].title);
-
-      if (mubiRating.year == json.movies[i].year) {
-        match = i;
-        // console.log("The year matches :)");
-        break;
-      } else {
-        if (closeMatch == undefined) {
-          closeMatch = i;
-        }
-        // console.log("Year mismatch! our movie's year is meant to be " + mubiRating.year + " but we found " + json.movies[i].year);
+    } else {
+      if (json.Response != 'False') {
+        mubiRating.setRating(json.tomatoMeter, json.tomatoURL);
       }
-    }
-    if (match != undefined) {
-      mubiRating.setRating(json.movies[match].ratings.critics_score, json.movies[match].links.alternate);
-    } else if (closeMatch != undefined) {
-      mubiRating.setRating(json.movies[closeMatch].ratings.critics_score, json.movies[closeMatch].links.alternate);
     }
   },
 
-  searchAgainWithoutSecondary: function () {
+  searchAgain: function () {
     mubiRating.findFilmInPage(false);
   },
 
@@ -118,8 +83,11 @@ var mubiRating = {
   },
 
   setRating: function (rating, link) {
-    if (rating === -1) {
-      console.log("this film is unrated");
+    if (rating == 'N/A' && link) {
+      // console.log("this film does not have enough votes to be rated");
+      mubiRating.setHTML('not enough votes', link);
+    } else if (rating == 'N/A' && !link) {
+      // console.log("this film is unrated");
     } else {
       // console.log("the rating will be",rating);
       mubiRating.setHTML(rating, link);
@@ -127,18 +95,18 @@ var mubiRating = {
   },
 
   setHTML: function (rating, link) {
-    var div = $('.film-show--average-rating')
+    var div = $('.film-show__average-rating')
 
     if ($('#mubi-rating').length !== 0) {
       $('#mubi-rating').remove();
     }
     div.append('<div id="mubi-rating"><a href="' + link + '" target="_blank"><span></span></a><p>' + rating + '</p></div>');
-    $("#mubi-rating").animate({opacity: 0.9}, 500);
+    $("#mubi-rating").animate({opacity: 0.9}, 300);
   },
 
   clearPrevious: function (score) {
     if ($('#mubi-rating').length > 0) {
-      $("#mubi-rating").animate({opacity: 0}, 200);
+      $("#mubi-rating").animate({opacity: 0}, 1<00);
     }
   },
 
@@ -156,9 +124,9 @@ $("#film_navigation").click(function () {
 });
 
 $(document).ready(function () {
-  // console.log("ready");
   mubiRating.searchComplete = false;
-  mubiRating.requestAPI();
+  mubiRating.moviesAPI = 'http://www.omdbapi.com/';
+  mubiRating.findFilmInPage(true);
 });
 
 mubiRating.injectCSS();
